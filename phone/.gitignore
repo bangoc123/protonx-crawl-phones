@@ -1,0 +1,10 @@
+.env
+output.html
+scrapy.log
+__pycache__
+.scrapy
+docs.txt
+crawl.py
+server.py
+items.py
+middlewares.py

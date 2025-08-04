@@ -1,0 +1,79 @@
+# requirements.txt - Optimized crawler dependencies
+
+# Core Scrapy and web scraping
+scrapy>=2.11.0
+scrapy-user-agents>=0.1.1
+scrapy-rotating-proxies>=0.6.2
+
+# HTML parsing
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+html5lib>=1.1
+
+# Database
+pymongo>=4.6.0
+motor>=3.3.0  # Async MongoDB driver
+
+# HTTP and networking
+requests>=2.31.0
+aiohttp>=3.9.0
+httpx>=0.25.0
+
+# XML processing
+xmltodict>=0.13.0
+
+# Configuration and environment
+python-decouple>=3.8
+python-dotenv>=1.0.0
+
+# Async and concurrency
+asyncio>=3.4.3
+asyncio-throttle>=1.0.2
+aiofiles>=23.2.0
+
+# Data processing
+pandas>=2.1.0
+numpy>=1.24.0
+
+# Logging and monitoring
+loguru>=0.7.0
+structlog>=23.2.0
+
+# Performance and memory monitoring
+psutil>=5.9.0
+memory-profiler>=0.61.0
+py-spy>=0.3.14
+
+# Scheduling and task management
+schedule>=1.2.0
+celery>=5.3.0
+redis>=5.0.0  # For Celery broker
+
+# Testing and development
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.12.0
+
+# Code quality
+black>=23.9.0
+flake8>=6.1.0
+mypy>=1.6.0
+
+# Additional utilities
+tqdm>=4.66.0  # Progress bars
+click>=8.1.0  # CLI interface
+rich>=13.6.0  # Better console output
+colorama>=0.4.6  # Colored terminal output
+
+# Optional: Proxy and anti-detection
+fake-useragent>=1.4.0
+selenium>=4.15.0  # If needed for JS rendering
+undetected-chromedriver>=3.5.0
+
+# Optional: Data export formats
+openpyxl>=3.1.0
+xlsxwriter>=3.1.0
+
+# Production deployment
+gunicorn>=21.2.0
+supervisor>=4.2.0
