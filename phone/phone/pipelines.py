@@ -18,9 +18,9 @@ class OptimizedMongoDBPipeline(object):
     
     def __init__(self):
         self.url = config('url')
-        # self.db_name = "thegioididong"
+        self.db_name = "thegioididong"
         # self.db_name = "cellphones"  # Sử dụng database cellphones
-        self.db_name = "fptshop"  # Sử dụng database fptshop
+        # self.db_name = "fptshop"  # Sử dụng database fptshop
         self.collection_name = "details_raw"  # Sử dụng collection details_raw
         
         # Connection pooling settings

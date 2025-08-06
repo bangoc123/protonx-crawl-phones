@@ -1,0 +1,16 @@
+.env
+output.html
+scrapy.log
+__pycache__
+.scrapy
+docs.txt
+crawl.py
+server.py
+items.py
+middlewares.py
+test.py
+test_cellphones.py
+index.html
+filter_data.py
+index_2.html
+.DS_Store

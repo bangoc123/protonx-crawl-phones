@@ -9,11 +9,28 @@ import scrapy
 from bs4 import BeautifulSoup, Tag
 from decouple import config
 from scrapy import Request
+from scrapy.spiders.sitemap import gzip_magic_number
+from scrapy.utils.gz import gunzip
+import gzip
+import zlib
+import brotli
 import logging
 import json
+import re
+from typing import List, Dict, Any
 import xmltodict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urljoin
+
+import sys
+
+# Bắt buộc dùng demjson3 để parse JS-style object literals
+try:
+    import demjson3
+except ImportError:
+    sys.exit(
+        "⚠️ [LỖI] Cần cài `demjson3` để parse JS literals linh hoạt. Vui lòng chạy `pip install demjson3` và thử lại.`"
+    )
 
 # MongoDB setup
 url = config('url')
@@ -26,9 +43,9 @@ try:
 except Exception as e:
     print("LỖI khi ping:", e)
 
-# db = client["thegioididceong"]
+db = client["thegioididceong"]
 # db = client["cellphones"]
-db = client["fptshop"]
+# db = client["fptshop"]
 
 # Lấy URLs đã có trong DB
 current_links = list(db['details_raw'].find({}, {"url": 1}))  
@@ -48,11 +65,11 @@ REMOVE_ATTRIBUTES = ['style', 'data-src', 'src', 'href', 'aria-describedby', 'da
 class JobSpider(scrapy.Spider):
     name = 'phone'
     start_urls = [
-        # 'https://www.thegioididong.com/newsitemap/sitemap-cate',
-        # 'https://www.thegioididong.com/newsitemap/sitemap-product', 
-        # 'https://www.thegioididong.com/newsitemap/sitemap-news'
-        # 'https://cellphones.com.vn/sitemap/sitemap_index.xml?v=google'
-        'https://fptshop.com.vn/sitemap.xml'
+        'https://www.thegioididong.com/newsitemap/sitemap-cate',
+        'https://www.thegioididong.com/newsitemap/sitemap-product', 
+        'https://www.thegioididong.com/newsitemap/sitemap-news'
+        # 'https://cellphones.com.vn/sitemap/sitemap_index.xml'
+        # 'https://fptshop.com.vn/sitemap.xml'
     ]
 
     custom_settings = {
@@ -110,14 +127,61 @@ class JobSpider(scrapy.Spider):
         print('---response.url:', response.url)
         print('---response.status:', response.status)
 
-        response = requests.get(url, headers={'Accept-Encoding': 'gzip, deflate'}) # Sử dụng requests để lấy nội dung cho fptshop
-        response.raise_for_status()
-        
+        # response = requests.get(url, headers={'Accept-Encoding': 'gzip, deflate'}) # Sử dụng requests để lấy nội dung cho fptshop
+        # print('---response.status_code:', response.status_code)
+        # response.raise_for_status()
+
+        if 'https://fptshop.com.vn/sitemap.xml' in self.start_urls:
+            body = response.body
+            headers = response.headers.get
+
+            # 1) Xem Content-Encoding header
+            encoding = headers(b'Content-Encoding', b'').decode().lower()
+            self.logger.info(f"Content-Encoding: {encoding}")
+
+            # 2) Giải nén theo header
+            try:
+                if 'br' in encoding:
+                    body = brotli.decompress(body)
+                    self.logger.info("✅ Brotli decompressed")
+                elif gzip_magic_number(response):
+                    try:
+                        body = gunzip(body)
+                    except Exception:
+                        body = gzip.decompress(body)
+                    self.logger.info("✅ GZIP decompressed via gunzip/gzip.decompress")
+                # thử deflate/raw zlib (nếu vẫn không phải XML)
+                if not body.strip().startswith(b'<'):
+                    try:
+                        body = zlib.decompress(body)
+                        self.logger.info("✅ Zlib/Deflate decompressed")
+                    except Exception:
+                        pass
+            except Exception as e:
+                self.logger.warning(f"Decompression step failed: {e}")
+
+            # 3) Chuyển sang text & parse XML
+            try:
+                text = body.decode('utf-8', errors='ignore')
+                obj = xmltodict.parse(text)
+                json_data = json.loads(json.dumps(obj))
+            except Exception as e:
+                self.logger.error(f"❌ XML parse error: {e}")
+                self.logger.debug(body[:200])
+                self.logger.debug(traceback.format_exc())
+                return
+        else:
+            try:
+                obj = xmltodict.parse(response.body)
+                json_data = json.loads(json.dumps(obj))
+                print('---json_data keys:', list(json_data.keys()))
+                self.logger.info(f"Parsed XML data successfully from {response.url}")
+            except Exception as e:
+                self.logger.error(f"❌ XML parse error: {e}")
+                self.logger.debug(response.body[:200])
+                self.logger.debug(traceback.format_exc())
+                return
         try:
-            obj = xmltodict.parse(response.body)
-            json_data = json.loads(json.dumps(obj))
-            print('---json_data keys:', list(json_data.keys()))
-            
             # Kiểm tra xem đây là sitemapindex hay urlset
             if 'sitemapindex' in json_data:
                 # Đây là sitemap index - cần crawl các sitemap con
@@ -129,12 +193,15 @@ class JobSpider(scrapy.Spider):
                 
                 for sitemap_item in sitemap_list:
                     sitemap_url = sitemap_item.get('loc')
-                    if sitemap_url:
+                    print("sitemap_url", sitemap_url)
+                    if sitemap_url: # fptshop: 'products' in sitemap_url and 'dien-thoai' in sitemap_url:
                         yield Request(
                             url=sitemap_url,
                             callback=self.parse,
                             # dont_filter=True,
-                            headers={'Referer': 'https://fptshop.com.vn/'},
+                            headers={'Referer': 'https://www.thegioididong.com/'},
+                            # headers={'Referer': 'https://fptshop.com.vn/'},
+                            # headers={'Referer': 'https://cellphones.com.vn/'},
                             priority=1  # Priority cao cho sitemap
                         )
                         
@@ -163,13 +230,14 @@ class JobSpider(scrapy.Spider):
                 for i in range(0, len(new_links), batch_size):
                     batch = new_links[i:i + batch_size]
                     for link in batch:
-                        if 'http' in link and 'dien-thoai' in link: # thegioididong (dtdd)
+                        if 'http' in link and 'dtdd' in link and 'sac' not in link and 'phu-kien' not in link: # thegioididong (dtdd) # cellphones: if dien-thoai is not link, To should be check keywords such as iPhone, samsung, xiaomi, oppo, realme, nothing, infinix, vivo, tecno, sony, itel, nubia, masstel, nokia, oneplus, tcl, inoi, benco, asus
                             yield Request(
                                 url=link,
                                 callback=self._parse_product_info_fptshop, # thegioididong (self.parse_product_info)
                                 # dont_filter=True,
-                                # headers={'Referer': 'https://cellphones.com.vn/'},
-                                headers={'Referer': 'https://fptshop.com.vn/'},
+                                # headers={'Referer': 'https://cellphones.com.vn/'}, # https://www.thegioididong.com/
+                                # headers={'Referer': 'https://fptshop.com.vn/'},
+                                headers={'Referer': 'https://www.thegioididong.com/'},
                                 priority=0,  # Priority thấp hơn sitemap
                                 meta={'batch_id': i // batch_size}  # Để tracking
                             )
@@ -219,7 +287,7 @@ class JobSpider(scrapy.Spider):
                 product_data['specifications'] = specifications
                 product_data['policies'] = policies
 
-            if not product_data.get('name'):
+            if not product_data.get('product_name'):
                 print(f"⚠️ No product name found for: {url}")
                 yield {
                     "url": url,
@@ -229,7 +297,7 @@ class JobSpider(scrapy.Spider):
                 }
                 return
 
-            print(f"✅ Successfully parsed: {product_data.get('name', 'Unknown')}")
+            print(f"✅ Successfully parsed: {product_data.get('product_name', 'Unknown')}")
             
             yield {
                 "url": url,
@@ -257,7 +325,7 @@ class JobSpider(scrapy.Spider):
         if name_container:
             name_tag = name_container.find("h1")
             if name_tag:
-                product_data['name'] = name_tag.get_text(strip=True)
+                product_data['product_name'] = name_tag.get_text(strip=True)
 
             quantity_tag = name_container.find("span", class_="quantity-sale")
             if quantity_tag:
@@ -294,61 +362,61 @@ class JobSpider(scrapy.Spider):
                 product_data['selected_capacity'] = ""
 
             # Lấy tất cả màu sắc
-            # color_tags = options_container.select("div.box03.color a")
-            # all_colors = [tag.get_text(strip=True) for tag in color_tags]
-            # product_data['all_colors'] = ', '.join(all_colors)
+            color_tags = options_container.select("div.box03.color a")
+            all_colors = [tag.get_text(strip=True) for tag in color_tags]
+            product_data['all_colors'] = all_colors
 
             # Lấy màu sắc đang được chọn
-            color_tag = options_container.select_one("div.box03.color a.act")
-            if color_tag:
-                product_data['selected_color'] = color_tag.get_text(strip=True)
-            else:
-                product_data['selected_color'] = ""
+            # color_tag = options_container.select_one("div.box03.color a.act")
+            # if color_tag:
+            #     product_data['selected_color'] = color_tag.get_text(strip=True)
+            # else:
+            #     product_data['selected_color'] = ""
         else:
             print(f"⚠️ Could not find product options container for: {url}")
             
         return product_data
 
-    def extract_saving_box(self, soup):
-        """Trích xuất thông tin khuyến mãi và giá"""
+    def extract_product_info(self, soup):
+        """
+        Trích xuất thông tin sản phẩm từ cấu trúc HTML mới, bao gồm:
+        giá hiện tại, giá gốc, phần trăm giảm giá, địa điểm và khuyến mãi.
+        """
         product_data = {}
+
+        # 1. Lấy thông tin về giá, giảm giá và trả góp
+        price_box = soup.select_one("div.price-one")
+        if price_box:
+            promo_price_tag = price_box.select_one("p.box-price-present")
+            original_price_tag = price_box.select_one("p.box-price-old")
+            discount_tag = price_box.select_one("p.box-price-percent")
+            installment_tag = price_box.select_one("span.label--black")
+
+            product_data['promo_price'] = promo_price_tag.get_text(strip=True) if promo_price_tag else ""
+            product_data['original_price'] = original_price_tag.get_text(strip=True) if original_price_tag else ""
+            product_data['discount'] = discount_tag.get_text(strip=True) if discount_tag else ""
+            product_data['installment_info'] = installment_tag.get_text(strip=True) if installment_tag else ""
+
+        # 2. Lấy thông tin về địa điểm
+        location_box = soup.select_one("div#location-detail")
+        if location_box:
+            location_tag = location_box.select_one("a")
+            product_data['location'] = location_tag.get_text(strip=True) if location_tag else ""
         
-        saving_box = soup.select_one("div.box_saving.v2")
-        if saving_box:
-            # 1. Lấy thông tin giá
-            price_box = saving_box.select_one("div.bs_price")
-            if price_box:
-                promo_price_tag = price_box.select_one("strong")
-                original_price_tag = price_box.select_one("em")
-                discount_tag = price_box.select_one("i")
-                
-                product_data['promo_price'] = promo_price_tag.get_text(strip=True) if promo_price_tag else ""
-                product_data['original_price'] = original_price_tag.get_text(strip=True) if original_price_tag else ""
-                product_data['discount'] = discount_tag.get_text(strip=True) if discount_tag else ""
+        # 3. Lấy thông tin khuyến mãi
+        promo_box = soup.select_one("div.block__promo")
+        if promo_box:
+            promo_title_tag = promo_box.select_one("p.pr-txtb")
+            promo_list_items = promo_box.select("div.divb-right p")
+            
+            product_data['promo_title'] = promo_title_tag.get_text(strip=True) if promo_title_tag else ""
+            product_data['promo_list'] = [item.get_text(strip=True) for item in promo_list_items]
 
-            # 2. Lấy thông tin thời gian và số lượng còn lại
-            time_box = saving_box.select_one("div.bs_time")
-            if time_box:
-                end_time_tag = time_box.select_one("div#clock_oltk")
-                stock_tag = time_box.select_one(".bs_count b")
-
-                product_data['end_time'] = end_time_tag['data-time'] if end_time_tag else ""
-                product_data['stock_info'] = stock_tag.get_text(strip=True) if stock_tag else ""
-
-            # 3. Lấy thông tin khuyến mãi
-            promo_box = saving_box.select_one("div.block__promo")
-            if promo_box:
-                promo_title_tag = promo_box.select_one("p.pr-txtb")
-                product_data['promo_title'] = promo_title_tag.get_text(strip=True) if promo_title_tag else ""
-                
-                promo_items = promo_box.select(".pr-item p")
-                product_data['promo_list'] = [item.get_text(strip=True) for item in promo_items]
-
-            # 4. Lấy điểm tích lũy
-            loyalty_tag = saving_box.select_one("p.loyalty__main__point")
-            if loyalty_tag:
-                product_data['loyalty_points'] = loyalty_tag.get_text(strip=True)
-                
+        # 4. Lấy điểm tích lũy
+        loyalty_tag = soup.select_one("p.loyalty__main__point")
+        if loyalty_tag:
+            product_data['loyalty_points'] = loyalty_tag.get_text(strip=True)
+            
         return product_data
 
     def extract_specifications(self, soup, url):
@@ -463,24 +531,29 @@ class JobSpider(scrapy.Spider):
                 print(f"⚠️ Critical: Main 'box-detail-product' container not found for {url}. Aborting.")
                 return
 
-            breadcrumb_container = soup.find('div', class_='block-breadcrumbs')
-            print("breadcrumb_container", breadcrumb_container)
-            
             breadcrumb_items = []
-            if breadcrumb_container:
-                # Tìm tất cả các thẻ <li> trong danh sách breadcrumb
-                list_items = breadcrumb_container.select('ul > li')
 
-                for li in list_items:
-                    # Trong mỗi thẻ <li>, tìm thẻ <a> hoặc <p> chứa nội dung text
-                    text_tag = li.find(['a', 'p'])
-                    
-                    if text_tag:
-                        # Lấy nội dung text từ thẻ và loại bỏ khoảng trắng thừa
-                        text = text_tag.get_text(strip=True)
-                        breadcrumb_items.append(text)
+            try:
+                # 1. Tìm thẻ <script> chứa JSON-LD của breadcrumb
+                breadcrumb_script = soup.find('script', {'type': 'application/ld+json'}, string=lambda s: 'BreadcrumbList' in s)
 
-            print("breadcrumb_items", breadcrumb_items)
+                if not isinstance(breadcrumb_script, Tag):
+                    return breadcrumb_items
+
+                # 2. Lấy nội dung JSON và parse nó
+                json_data = json.loads(breadcrumb_script.string)
+
+                # 3. Lặp qua 'itemListElement' để lấy tên của từng mục
+                if isinstance(json_data, dict) and 'itemListElement' in json_data:
+                    for item in json_data['itemListElement']:
+                        if 'item' in item and 'name' in item['item']:
+                            breadcrumb_items.append(item['item']['name'])
+
+            except (json.JSONDecodeError, KeyError) as e:
+                print(f"⚠️ Lỗi khi phân tích JSON-LD của breadcrumb: {e}")
+                print(traceback.format_exc())
+
+            print(f"🔗 Breadcrumb items: {breadcrumb_items}")
             
             detail_container_left = detail_container.find("div", class_="box-detail-product__box-left")
             detail_container_center = detail_container.find("div", class_="box-detail-product__box-center")
@@ -868,7 +941,12 @@ class JobSpider(scrapy.Spider):
             print(f'📄 Parsing product: {response.url}')
             url = response.request.url
             soup = BeautifulSoup(response.text, "lxml")
-            
+
+            # Lưu nội dung HTML vào file để kiểm tra nếu cần
+            # self._save_soup_to_file(soup, "output_fptshop.html")
+            # print("HTML content saved to output_fptshop.html for debugging.")
+            # return
+
             # --- Khởi tạo các biến với giá trị mặc định ---
             product_data = {}
             
@@ -908,7 +986,7 @@ class JobSpider(scrapy.Spider):
                 future_price = executor.submit(self._extract_price_fptshop, detail_container, url)
                 future_promotions = executor.submit(self._extract_all_promotions_fptshop, detail_container, url)
                 futre_extented_warranty = executor.submit(self._extract_extended_warranty_fptshop, detail_container, url)
-                future_specifications = executor.submit(self._extract_all_specs_fptshop, detail_container, url)
+                future_specifications = executor.submit(self._extract_all_specs_fptshop, str(soup.prettify()), url)
 
                 # Collect results
                 basic_info = future_basic_info.result()
@@ -966,7 +1044,7 @@ class JobSpider(scrapy.Spider):
                 Trả về dictionary rỗng nếu không tìm thấy thông tin hoặc có lỗi.
         """
         product_details = {
-            'name': None,
+            'product_name': None,
             'rating_score': None,
             'rating_count': None
         }
@@ -975,7 +1053,7 @@ class JobSpider(scrapy.Spider):
             # Lấy tên sản phẩm từ thẻ <h1>
             name_tag = detail_container.select_one("h1.text-textOnWhitePrimary.b2-medium.pc\:l6-semibold")
             if isinstance(name_tag, Tag):
-                product_details['name'] = name_tag.get_text(strip=True)
+                product_details['product_name'] = name_tag.get_text(strip=True)
 
             # Lấy điểm đánh giá từ div
             rating_score_tag = detail_container.select_one("div.ml-1\.5.flex.items-center.gap-1 > div.text-textOnWhitePrimary.b2-regular")
@@ -997,14 +1075,6 @@ class JobSpider(scrapy.Spider):
     def _extract_options_fptshop(self, detail_container, url: str) -> dict:
         """
         Trích xuất các tùy chọn sản phẩm như dung lượng và màu sắc từ HTML của trang FPT Shop.
-
-        Args:
-            detail_container: Đối tượng chứa toàn bộ HTML của trang.
-            url (str): URL của trang sản phẩm.
-
-        Returns:
-            dict: Một dictionary chứa các tùy chọn dung lượng và màu sắc.
-                Trả về dictionary rỗng nếu không tìm thấy thông tin hoặc có lỗi.
         """
         product_options = {
             'storage_options': [],
@@ -1013,37 +1083,40 @@ class JobSpider(scrapy.Spider):
 
         try:
             # Lấy container chứa tất cả các tùy chọn (dung lượng và màu sắc)
-            options_container = detail_container.select_one("div.grid.gap-y-3.pb-4.pt-3.pc\:gap-y-2.pc\:py-0")
+            options_container = detail_container.select_one("div.grid.gap-y-3.pb-4.pt-3.pc\\:gap-y-2.pc\\:py-0")
             if not options_container:
                 return product_options
 
             # Trích xuất tùy chọn dung lượng
-            storage_container = options_container.find('span', string='Dung lượng').find_next_sibling('div')
-            if isinstance(storage_container, Tag):
-                for button in storage_container.select('button'):
-                    storage_text_tag = button.select_one('span.block.text-textOnWhitePrimary.b2-medium')
-                    if isinstance(storage_text_tag, Tag):
-                        is_selected = 'Selection_buttonSelect__7lW_h' in button.get('class', [])
-                        product_options['storage_options'].append({
-                            'value': storage_text_tag.get_text(strip=True),
-                            'is_selected': is_selected
-                        })
+            storage_label = options_container.find('span', string='Dung lượng')
+            if storage_label:
+                storage_container = storage_label.find_next_sibling('div')
+                if storage_container:
+                    for button in storage_container.select('button'):
+                        storage_text_tag = button.select_one('span.block.text-textOnWhitePrimary.b2-medium')
+                        if storage_text_tag:
+                            is_selected = 'Selection_buttonSelect__7lW_h' in button.get('class', [])
+                            product_options['storage_options'].append({
+                                'value': storage_text_tag.get_text(strip=True),
+                                'is_selected': is_selected
+                            })
 
             # Trích xuất tùy chọn màu sắc
-            color_container = options_container.find('span', string='Màu sắc').find_next_sibling('div')
-            if isinstance(color_container, Tag):
-                for button in color_container.select('button'):
-                    color_text_tag = button.select_one('span.block.text-textOnWhitePrimary.b2-medium')
-                    color_img_tag = button.select_one('img')
-                    
-                    if isinstance(color_text_tag, Tag) and isinstance(color_img_tag, Tag):
-                        is_selected = 'Selection_buttonSelect__7lW_h' in button.get('class', [])
-                        product_options['color_options'].append({
-                            'name': color_text_tag.get_text(strip=True),
-                            'image_url': color_img_tag.get('src'),
-                            'is_selected': is_selected
-                        })
-
+            color_label = options_container.find('span', string='Màu sắc')
+            if color_label:
+                color_container = color_label.find_next_sibling('div')
+                if color_container:
+                    for button in color_container.select('button'):
+                        color_text_tag = button.select_one('span.block.text-textOnWhitePrimary.b2-medium')
+                        color_img_tag = button.select_one('img')
+                        if color_text_tag and color_img_tag:
+                            is_selected = 'Selection_buttonSelect__7lW_h' in button.get('class', [])
+                            product_options['color_options'].append({
+                                'name': color_text_tag.get_text(strip=True),
+                                'image_url': color_img_tag.get('src'),
+                                'is_selected': is_selected
+                            })
+                            
             return product_options
 
         except Exception as e:
@@ -1121,16 +1194,18 @@ class JobSpider(scrapy.Spider):
         
         try:
             # Trích xuất khuyến mãi chung (đã có từ hàm cũ)
-            promotion_container = detail_container.find('div', class_="relative flex flex-col gap-2.5 rounded-[0.375rem] border bg-white border-neutral-gray-3 cursor-pointer mt-5 p-0")
+            # promotion_container = detail_container.find('div', class_="relative flex flex-col gap-2.5 rounded-[0.375rem] border")
+            promotion_container = detail_container.select_one(r'div.relative.flex.flex-col.gap-2\.5.rounded-\[0\.375rem\].border')
             if promotion_container:
                 promotion_tags = promotion_container.select("p")
                 all_promotions['general_promotions'] = [p_tag.get_text(strip=True) for p_tag in promotion_tags]
 
+            
             # Trích xuất khuyến mãi thanh toán (đã có từ hàm cũ)
-            payment_container = detail_container.select_one('div.flex.flex-col.overflow-hidden.bg-white.mb\:container-full.pc\:rounded-\[0\.5rem\].pc\:border.pc\:border-neutral-gray-3')
-            if payment_container:
+            promontion_and_payment_container = detail_container.select_one('div.flex.flex-col.pc\:flex-col-reverse.pc\:gap-3')
+            if promontion_and_payment_container:
                 # Lấy container chứa các slide khuyến mãi thanh toán
-                swiper_wrapper = payment_container.select_one('div.swiper-wrapper')
+                swiper_wrapper = promontion_and_payment_container.select_one('div.swiper-wrapper')
                 if isinstance(swiper_wrapper, Tag):
                     payment_promotions = []
                     for slide in swiper_wrapper.select('div.swiper-slide'):
@@ -1143,10 +1218,9 @@ class JobSpider(scrapy.Spider):
                             payment_promotions.append(promotion_info)
                     all_promotions['payment_promotions'] = payment_promotions
 
-            # Trích xuất quà tặng và ưu đãi khác (đã có từ hàm cũ)
-            other_promotions_container = detail_container.select_one('div.flex.flex-col.overflow-hidden.bg-white.mb\:container-full.pc\:rounded-\[0\.5rem\].pc\:border.pc\:border-neutral-gray-3')
-            if other_promotions_container:
-                promotions_list_container = other_promotions_container.select_one('div.flex.flex-col.gap-3')
+
+            if promontion_and_payment_container:
+                promotions_list_container = promontion_and_payment_container.select_one('div.flex.flex-col.gap-3')
                 if isinstance(promotions_list_container, Tag):
                     other_promotions = []
                     promotion_tags = promotions_list_container.select('p.text-textOnWhitePrimary')
@@ -1178,12 +1252,12 @@ class JobSpider(scrapy.Spider):
         
         try:
             # 1. Tìm container chính chứa toàn bộ phần "Bảo hành mở rộng"
-            container_parent = detail_container.select_one('div.flex.flex-col.overflow-hidden.bg-white.mb\:container-full.pc\:rounded-\[0\.5rem\].pc\:border.pc\:border-iconStrokeOnWhiteDefault')
-            if not container_parent:
-                return extended_warranties
+            # container_parent = detail_container.select_one('div.flex.flex-col.overflow-hidden.bg-white.mb\:container-full.pc\:rounded-\[0\.5rem\].pc\:border.pc\:border-iconStrokeOnWhiteDefault')
+            # if not container_parent:
+            #     return extended_warranties
 
             # 2. Tìm container chứa danh sách các gói bảo hành
-            warranty_list_container = container_parent.select_one('div.flex.flex-col.gap-2')
+            warranty_list_container = detail_container.select_one('div.flex.flex-col.gap-2.px-4.pb-4.pt-3')
             if not isinstance(warranty_list_container, Tag):
                 return extended_warranties
             
@@ -1219,69 +1293,136 @@ class JobSpider(scrapy.Spider):
             print(traceback.format_exc())
             
         return extended_warranties
-
-    def _extract_all_specs_fptshop(self, detail_container, url: str) -> dict:
+    
+    def _remove_url_keys(self, data):
         """
-        Trích xuất toàn bộ thông số kỹ thuật của sản phẩm từ HTML.
+        Hàm đệ quy để loại bỏ các key liên quan đến URL/hình ảnh từ một dictionary hoặc list.
+        """
+        keys_to_remove = ['url', 'imageUrl', 'pageUrl', 'thumb', 'icon']
+        
+        if isinstance(data, dict):
+            # Tạo danh sách các key cần xóa
+            keys_to_delete = [key for key in data if key in keys_to_remove]
+            for key in keys_to_delete:
+                del data[key]
+            
+            # Gọi đệ quy cho các giá trị còn lại
+            for key, value in data.items():
+                self._remove_url_keys(value)
+        
+        elif isinstance(data, list):
+            for item in data:
+                self._remove_url_keys(item)
+        
+        return data
 
+
+    def _extract_all_specs_fptshop(self, html_content: str, url: str) -> dict:
+        """
+        Trích xuất thông số kỹ thuật từ self.__next_f.push của FPT Shop.
         Args:
-            detail_container (Tag): Thẻ cha chứa toàn bộ thông tin chi tiết sản phẩm.
-            url (str): URL của trang sản phẩm để hỗ trợ debug.
-
+            html_content (str): HTML chứa dữ liệu JS.
+            url (str): URL sản phẩm (để debug).
         Returns:
-            dict: Một dictionary chứa các mục thông số và các thông tin chi tiết của từng mục.
-                Trả về dictionary rỗng nếu không tìm thấy hoặc có lỗi.
+            dict: specs grouped by displayName.
         """
-        all_specs = {}
-        
+        product_data = {}
+
+        # 1. Tìm block JS (lấy phần "16:...[arr,map]...")
+        m = re.search(
+            r'self\.__next_f\.push\(\[1,\s*"(16:.*?)"\]\)',
+            html_content,
+            re.DOTALL
+        )
+        if not m:
+            print(f"⚠️ [LỖI] Không tìm thấy JS data tại {url}")
+            return product_data
+
+        # 2. Tách lấy phần raw sau "16:" và bỏ quotes bao bên ngoài
+        raw = m.group(1).split(":",1)[1].strip('"').replace('\\n','').replace('\\r','')
+        raw = re.sub(r'(?<!\\)"', r'\"', raw)
+
+        raw = re.sub(r'\\(?![\\/\"bfnrtu])', r'\\\\', raw)
+
+        # 3. Dùng json.loads để un-escape chính xác JS escapes (\\" , \\u..., v.v.)
+
+        with open("raw.json", 'w', encoding='utf-8') as f:
+            json.dump(raw, f, ensure_ascii=False, indent=2)
         try:
-            # 1. Tìm container chứa toàn bộ thông số kỹ thuật
-            specs_container = detail_container.select_one('div.Sheet_body__VKc95.active')
-            if not specs_container:
-                return all_specs
-            
-            # 2. Tìm tất cả các mục thông số (ví dụ: "Thông tin hàng hóa", "Thiết kế & Trọng lượng")
-            spec_sections = specs_container.select('div.tab-content.flex.flex-col.pt-5')
-            
-            if not spec_sections:
-                return all_specs
+            unescaped = json.loads(f'"{raw}"')
+        except json.JSONDecodeError as e:
+            print(f"⚠️ [LỖI json.loads] tại {url}: {e}")
+            return product_data
 
-            for section in spec_sections:
-                # Lấy tên mục (ví dụ: "Thông tin hàng hóa")
-                section_title_tag = section.select_one('div.b2-semibold > span')
-                if not isinstance(section_title_tag, Tag):
-                    continue
-                
-                section_title = section_title_tag.get_text(strip=True)
-                specs_in_section = {}
-                
-                # Lấy tất cả các cặp key-value trong mục đó
-                spec_items = section.select('div.flex.gap-2.border-b')
-                
-                for item in spec_items:
-                    key_tag = item.select_one('div.w-2/5')
-                    value_tag = item.select_one('div.flex.flex-1.flex-col') or item.select_one('span.flex-1')
-                    
-                    if isinstance(key_tag, Tag) and isinstance(value_tag, Tag):
-                        key = key_tag.get_text(strip=True)
-                        
-                        # Xử lý trường hợp có nhiều giá trị trong một thông số
-                        values_text = [p.get_text(strip=True) for p in value_tag.find_all('p')]
-                        if not values_text:
-                            value = value_tag.get_text(strip=True)
-                        else:
-                            value = values_text
-                        
-                        # Loại bỏ các cặp key-value rỗng
-                        if key and value:
-                            specs_in_section[key] = value
+        # 4. Split mảng và object map
+        try:
+            arr_part, map_part = unescaped.split("]", 1)
+        except ValueError:
+            print(f"⚠️ [LỖI] Không thể split array/map tại {url}")
+            return product_data
 
-                # Thêm mục đã xử lý vào dictionary kết quả
-                if specs_in_section:
-                    all_specs[section_title] = specs_in_section
+        arr_str = arr_part + "]"
+        map_str = map_part.lstrip(",")
 
+        # 5. Build literal JS cho demjson3
+        js_literal = f'{{"__root":{arr_str},{map_str}}}'
+
+        with open("output.json", 'w', encoding='utf-8') as f:
+            json.dump(js_literal, f, ensure_ascii=False, indent=2)
+
+        # 6. Decode bằng demjson3
+        try:
+            obj_map = demjson3.decode(js_literal)
         except Exception as e:
-            print(f"⚠️ Lỗi khi trích xuất thông số kỹ thuật từ {url}: {e}")
-            print(traceback.format_exc())
-        
-        return all_specs
+            print(f"⚠️ [LỖI demjson3] tại {url}: {e}")
+            return product_data
+
+        # 7. Resolve các tham chiếu $...
+        def resolve(item, seen=None):
+            if seen is None:
+                seen = set()
+            if isinstance(item, str) and item.startswith("$"):
+                key = item[1:]
+                if key in seen:
+                    return None
+                seen.add(key)
+                return resolve(obj_map.get(key), seen)
+            if isinstance(item, list):
+                return [resolve(i, set(seen)) for i in item]
+            if isinstance(item, dict):
+                return {k: resolve(v, set(seen)) for k, v in item.items()}
+            return item
+
+        root = resolve(obj_map.get("__root", []))
+
+        # 8. Tìm tất cả attributeItem
+        def find_attribute_items(o):
+            if isinstance(o, dict):
+                if "attributeItem" in o and isinstance(o["attributeItem"], list):
+                    return o["attributeItem"]
+                for v in o.values():
+                    r = find_attribute_items(v)
+                    if r:
+                        return r
+            elif isinstance(o, list):
+                for i in o:
+                    r = find_attribute_items(i)
+                    if r:
+                        return r
+            return []
+
+        items = find_attribute_items(root)
+
+        # 9. Gom nhóm theo groupName
+        for item in items:
+            group = item.get("groupName", "").strip()
+            info = {}
+            for attr in item.get("attributes", []):
+                name = attr.get("displayName", "").strip()
+                val = attr.get("value")
+                if name and val is not None:
+                    info[name] = val
+            if group:
+                product_data[group] = info
+
+        return product_data

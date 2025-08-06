@@ -77,3 +77,9 @@ xlsxwriter>=3.1.0
 # Production deployment
 gunicorn>=21.2.0
 supervisor>=4.2.0
+
+####
+Brotli==1.1.0
+
+##
+demjson3==3.0.6
