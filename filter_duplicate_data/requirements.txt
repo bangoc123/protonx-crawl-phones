@@ -1,0 +1,7 @@
+ragas==0.3.0
+rouge-score==0.1.2
+faiss-cpu==1.11.0.post1
+sentence_transformers==5.0.0
+pandas
+numpy
+tqdm

@@ -1,0 +1,127 @@
+,_id1,_id2,title_cleaned,references_cleaned,capacity,colors1_for_cap,colors2_for_row,common_colors,num_common_colors
+0,['666baeb49793e149fe7393c5'],6892cd74a79a1867093a029f,nubia neo 2,nubia neo 2,256GB,"['Vàng', 'Bạc', 'Đen']","['Đen', 'Bạc', 'Vàng']","['Bạc', 'Vàng', 'Đen']",3
+1,['666baeb89793e149fe739496'],6892ce0aa79a1867093a0475,xiaomi 12,xiaomi 12,256GB,[],['Xanh dương'],[],0
+2,['666baeb59793e149fe7393f1'],6892cd65a79a1867093a0276,tecno spark go 2024,tecno spark go 2024,64GB,"['Trắng', 'Vàng', 'Đen', 'Xanh Lá']","['Đen', 'Trắng', 'Xanh', 'Vàng']","['Đen', 'Vàng', 'Trắng']",3
+3,['666baeb89793e149fe739494'],6892cdeba79a1867093a031a,samsung galaxy a53 5g,samsung galaxy a53 5g,128GB,[],"['Đen', 'Xanh']",[],0
+4,"['666baeb79793e149fe73944e', '666baeb79793e149fe73944d']",6892cd90a79a1867093a02c1,samsung galaxy a54 5g,samsung galaxy a54 5g,128GB,[],"['Xanh', 'Tím', 'Đen']",[],0
+5,"['666baeb79793e149fe73944e', '666baeb79793e149fe73944d']",6892cd90a79a1867093a02c1,samsung galaxy a54 5g,samsung galaxy a54 5g,256GB,[],"['Xanh', 'Tím', 'Đen']",[],0
+6,['666baeb99793e149fe7394e9'],6892ce17a79a1867093a0508,realme 6i,realme 6i,128GB,[],"['Trắng', 'Xanh rêu']",[],0
+7,['666baeb99793e149fe7394d6'],6892ce0aa79a1867093a0492,oppo find x2,oppo find x2,256GB,[],"['Xanh', 'Đen']",[],0
+8,"['666baeb89793e149fe73947a', '666baeb89793e149fe73947d']",6892ce13a79a1867093a04f4,nokia g11 +,nokia g11 +,32GB,[],['Xám'],[],0
+9,['666baeb99793e149fe7394c2'],6892cdf8a79a1867093a03a9,vsmart joy 3,vsmart joy 3,64GB,[],"['Tím', 'Trắng', 'Đen']",[],0
+10,['666baeb99793e149fe7394cf'],6892cdcba79a1867093a02fa,samsung galaxy z fold2 5g,samsung galaxy z fold2 5g,256GB,[],"['Đồng', 'Đen']",[],0
+11,['666baeb99793e149fe7394e2'],6892cdeba79a1867093a032a,samsung galaxy a51,samsung galaxy a51,128GB,[],"['Trắng', 'Xanh', 'Bạc', 'Đen']",[],0
+12,['666baeb99793e149fe7394eb'],6892ce1ba79a1867093a0544,realme 6,realme 6,128GB,[],"['Trắng', 'Xanh']",[],0
+13,['666baeb99793e149fe7394ea'],6892cdf0a79a1867093a035b,realme 6 pro,realme 6 pro,128GB,[],"['Đỏ', 'Xanh']",[],0
+14,['666baeb79793e149fe739439'],6892ce05a79a1867093a0439,nokia c32,nokia c32,128GB,"['Đen', 'Xanh Lá']","['Xám', 'Xanh']",[],0
+15,['666baeb89793e149fe7394a4'],6892ce05a79a1867093a0464,nokia g10,nokia g10,64GB,[],['Xanh'],[],0
+16,"['666baeb99793e149fe7394ee', '666baeb99793e149fe7394ef']",6892cdf0a79a1867093a034a,xiaomi redmi note 9 pro,xiaomi redmi note 9 pro,64GB,[],['Xanh'],[],0
+17,"['666baeb99793e149fe7394ee', '666baeb99793e149fe7394ef']",6892cdf0a79a1867093a034a,xiaomi redmi note 9 pro,xiaomi redmi note 9 pro,128GB,[],['Xanh'],[],0
+18,['666baeb99793e149fe7394c3'],6892cdf4a79a1867093a0389,vsmart aris,vsmart aris,128GB,[],"['Xanh', 'Đen']",[],0
+19,['666baeb59793e149fe7393f0'],6892ce01a79a1867093a0423,tecno spark 20c,tecno spark 20c,128GB,"['Trắng', 'Đen', 'Xanh Lá']","['Vàng', 'Trắng', 'Xanh', 'Đen']","['Trắng', 'Đen']",2
+20,"['666baeb49793e149fe7393c7', '666baeb79793e149fe73944f']",6892ce05a79a1867093a0446,samsung galaxy a34 5g,samsung galaxy a34 5g,128GB,[],"['Xanh', 'Đen', 'Bạc']",[],0
+21,['666baeb79793e149fe739451'],6892cdc6a79a1867093a02f3,oppo find n2 flip,oppo find n2 flip,256GB,"['Đen', 'Tím Đam Mê']",['Đen'],['Đen'],1
+22,"['666baeb79793e149fe73946b', '666baeb79793e149fe73946a']",6892ce05a79a1867093a0444,nokia c31,nokia c31,32GB,[],"['Xanh dương', 'Xanh lá']",[],0
+23,"['666baeb69793e149fe73940b', '666baeb69793e149fe73940c', '666baeb69793e149fe73940d', '666baeb69793e149fe739410']",6892cd95a79a1867093a02c2,iphone 15 pro,iphone 15 pro,1TB,"['Titan Xanh', 'Titan Đen', 'Titan Tự Nhiên', 'Titan Trắng']","['Titan Xanh', 'Titan Đen', 'Titan Trắng', 'Titan Tự nhiên']","['Titan Xanh', 'Titan Trắng', 'Titan Đen']",3
+24,"['666baeb69793e149fe73940b', '666baeb69793e149fe73940c', '666baeb69793e149fe73940d', '666baeb69793e149fe739410']",6892cd95a79a1867093a02c2,iphone 15 pro,iphone 15 pro,512GB,"['Titan Xanh', 'Titan Tự Nhiên', 'Titan Trắng', 'Titan Đen']","['Titan Xanh', 'Titan Đen', 'Titan Trắng', 'Titan Tự nhiên']","['Titan Xanh', 'Titan Trắng', 'Titan Đen']",3
+25,"['666baeb69793e149fe73940b', '666baeb69793e149fe73940c', '666baeb69793e149fe73940d', '666baeb69793e149fe739410']",6892cd95a79a1867093a02c2,iphone 15 pro,iphone 15 pro,256GB,"['Titan Tự Nhiên', 'Titan Trắng', 'Titan Xanh', 'Titan Đen']","['Titan Xanh', 'Titan Đen', 'Titan Trắng', 'Titan Tự nhiên']","['Titan Xanh', 'Titan Trắng', 'Titan Đen']",3
+26,"['666baeb69793e149fe73940b', '666baeb69793e149fe73940c', '666baeb69793e149fe73940d', '666baeb69793e149fe739410']",6892cd95a79a1867093a02c2,iphone 15 pro,iphone 15 pro,128GB,"['Titan Xanh', 'Titan Tự Nhiên', 'Titan Trắng', 'Titan Đen']","['Titan Xanh', 'Titan Đen', 'Titan Trắng', 'Titan Tự nhiên']","['Titan Xanh', 'Titan Trắng', 'Titan Đen']",3
+27,"['666baeb69793e149fe739411', '666baeb69793e149fe73940e', '666baeb69793e149fe73940f']",6892cda6a79a1867093a02d3,iphone 15 pro max,iphone 15 pro max,256GB,"['Titan Xanh', 'Titan Đen', 'Titan Tự Nhiên', 'Titan Trắng']","['Titan Xanh', 'Titan Tự nhiên', 'Titan Đen', 'Titan Trắng']","['Titan Xanh', 'Titan Trắng', 'Titan Đen']",3
+28,"['666baeb69793e149fe739411', '666baeb69793e149fe73940e', '666baeb69793e149fe73940f']",6892cda6a79a1867093a02d3,iphone 15 pro max,iphone 15 pro max,1TB,"['Titan Tự Nhiên', 'Titan Xanh', 'Titan Trắng', 'Titan Đen']","['Titan Xanh', 'Titan Tự nhiên', 'Titan Đen', 'Titan Trắng']","['Titan Xanh', 'Titan Trắng', 'Titan Đen']",3
+29,"['666baeb69793e149fe739411', '666baeb69793e149fe73940e', '666baeb69793e149fe73940f']",6892cda6a79a1867093a02d3,iphone 15 pro max,iphone 15 pro max,512GB,"['Titan Đen', 'Titan Tự Nhiên', 'Titan Xanh', 'Titan Trắng']","['Titan Xanh', 'Titan Tự nhiên', 'Titan Đen', 'Titan Trắng']","['Titan Xanh', 'Titan Trắng', 'Titan Đen']",3
+30,['666baeb89793e149fe7394ad'],6892cdd5a79a1867093a0306,xiaomi redmi note 10 5g,xiaomi redmi note 10 5g,128GB,[],"['Xanh dương', 'Bạc', 'Xám']",[],0
+31,"['666baeb99793e149fe7394f0', '666baeb99793e149fe7394f1']",6892cdf0a79a1867093a0349,xiaomi redmi note 9,xiaomi redmi note 9,128GB,[],['Xám'],[],0
+32,['666baeb79793e149fe739464'],6892ce17a79a1867093a04fe,vivo y35,vivo y35,128GB,"['Vàng', 'Đen']","['Vàng', 'Đen']","['Vàng', 'Đen']",2
+33,['666baeb59793e149fe7393ef'],6892cd9ba79a1867093a02c7,tecno spark 20,tecno spark 20,128GB,"['Trắng', 'Xanh Dương', 'Đen']","['Đen', 'Trắng', 'Xanh']","['Đen', 'Trắng']",2
+34,['666baeb59793e149fe7393cd'],6892cda6a79a1867093a02d1,tecno spark 20 pro +,tecno spark 20 pro +,256GB,"['Đen', 'Trắng', 'Vàng']","['Trắng', 'Đen']","['Trắng', 'Đen']",2
+35,['666baeb89793e149fe739492'],6892cdf0a79a1867093a0342,samsung galaxy a33 5g,samsung galaxy a33 5g,128GB,[],"['Đen', 'Cam', 'Xanh']",[],0
+36,['666baeb99793e149fe7394d5'],6892ce0aa79a1867093a0471,oppo a92,oppo a92,128GB,[],"['Đen', 'Tím']",[],0
+37,"['666baeb69793e149fe73942b', '666baeb89793e149fe73948e', '666baeb89793e149fe73948c', '666baeb89793e149fe73948d']",6892ce05a79a1867093a0447,nokia c21 +,nokia c21 +,32GB,[],"['Xám', 'Xanh']",[],0
+38,"['666baeb69793e149fe73942b', '666baeb89793e149fe73948e', '666baeb89793e149fe73948c', '666baeb89793e149fe73948d']",6892ce05a79a1867093a0447,nokia c21 +,nokia c21 +,32GB,[],"['Xám', 'Xanh']",[],0
+39,"['666baeb69793e149fe739408', '666baeb69793e149fe739407', '666baeb69793e149fe739412']",6892cd95a79a1867093a02c3,iphone 15 +,iphone 15 +,256GB,"['Hồng', 'Xanh Lá', 'Đen', 'Vàng', 'Xanh Dương']","['Xanh dương', 'Hồng', 'Đen', 'Xanh lá', 'Vàng']","['Hồng', 'Vàng', 'Đen']",3
+40,"['666baeb69793e149fe739408', '666baeb69793e149fe739407', '666baeb69793e149fe739412']",6892cd95a79a1867093a02c3,iphone 15 +,iphone 15 +,512GB,"['Đen', 'Vàng', 'Xanh Lá', 'Hồng', 'Xanh Dương']","['Xanh dương', 'Hồng', 'Đen', 'Xanh lá', 'Vàng']","['Hồng', 'Vàng', 'Đen']",3
+41,"['666baeb69793e149fe739408', '666baeb69793e149fe739407', '666baeb69793e149fe739412']",6892cd95a79a1867093a02c3,iphone 15 +,iphone 15 +,128GB,"['Hồng', 'Xanh Lá', 'Xanh Dương', 'Vàng', 'Đen']","['Xanh dương', 'Hồng', 'Đen', 'Xanh lá', 'Vàng']","['Hồng', 'Vàng', 'Đen']",3
+42,"['666baeb69793e149fe739418', '666baeb79793e149fe739435']",6892ce05a79a1867093a0436,oppo reno10 5g,oppo reno10 5g,128GB,['Xanh Dương'],['Xanh'],[],0
+43,"['666baeb69793e149fe739418', '666baeb79793e149fe739435']",6892ce05a79a1867093a0436,oppo reno10 5g,oppo reno10 5g,256GB,"['Xanh Dương', 'Xám']",['Xanh'],[],0
+44,"['666baeb89793e149fe7394ac', '666baeb89793e149fe7394b7']",6892ce0aa79a1867093a0480,xiaomi redmi 9t,xiaomi redmi 9t,64GB,[],"['Xanh dương', 'Xám']",[],0
+45,['666baeb89793e149fe73947b'],6892ce05a79a1867093a044b,vivo y22s,vivo y22s,128GB,"['Xanh Đen', 'Xanh Vàng']",['Xanh'],[],0
+46,['666baeb99793e149fe7394e3'],6892cdfca79a1867093a03f5,samsung galaxy a31,samsung galaxy a31,128GB,[],"['Xanh', 'Trong suốt']",[],0
+47,['666baeb79793e149fe739438'],6892cdc0a79a1867093a02ec,oppo a78,oppo a78,256GB,"['Xanh', 'Đen']","['Xanh lá', 'Đen']",['Đen'],1
+48,['666baeb89793e149fe7394af'],6892ce0aa79a1867093a046e,nokia c20,nokia c20,32GB,"['Vàng phù sa', 'Xanh thiên thạch']","['Vàng', 'Xanh']",[],0
+49,['666baeb79793e149fe739465'],6892cdeba79a1867093a0338,samsung galaxy a23 5g,samsung galaxy a23 5g,128GB,[],"['Xanh', 'Đen']",[],0
+50,['666baeb59793e149fe7393f8'],6892ce01a79a1867093a042b,samsung galaxy a25 5g,samsung galaxy a25 5g,128GB,"['Xanh', 'Vàng', 'Đen']","['Đen', 'Xanh', 'Vàng']","['Xanh', 'Vàng', 'Đen']",3
+51,['666baeb79793e149fe73946c'],6892ce01a79a1867093a042e,oppo a77s,oppo a77s,128GB,"['Đen', 'Xanh']","['Xanh', 'Đen']","['Xanh', 'Đen']",2
+52,['666baeb89793e149fe73947c'],6892ce17a79a1867093a04fb,nokia 8210 4g,nokia 8210 4g,128MB,"['Vàng', 'Xanh', 'Đỏ']","['Đỏ', 'Xanh']","['Đỏ', 'Xanh']",2
+53,['666baeb89793e149fe739472'],6892ce05a79a1867093a044c,vivo y16,vivo y16,128GB,"['Vàng', 'Đen']","['Vàng', 'Đen']","['Vàng', 'Đen']",2
+54,"['666baeb79793e149fe739431', '666baeb79793e149fe739432']",6892cda0a79a1867093a02cc,tecno pova 5,tecno pova 5,256GB,"['Đen', 'Xanh Dương', 'Vàng']","['Xanh', 'Vàng', 'Đen']","['Vàng', 'Đen']",2
+55,"['666baeb79793e149fe739431', '666baeb79793e149fe739432']",6892cda0a79a1867093a02cc,tecno pova 5,tecno pova 5,128GB,"['Xanh Dương', 'Vàng', 'Đen']","['Xanh', 'Vàng', 'Đen']","['Vàng', 'Đen']",2
+56,"['666baeb59793e149fe7393cb', '666baeb59793e149fe7393eb']",6892cd90a79a1867093a02bd,samsung galaxy s23 fe 5g,samsung galaxy s23 fe 5g,256GB,"['Xám', 'Tím']","['Tím', 'Xám']","['Xám', 'Tím']",2
+57,"['666baeb59793e149fe7393cb', '666baeb59793e149fe7393eb']",6892cd90a79a1867093a02bd,samsung galaxy s23 fe 5g,samsung galaxy s23 fe 5g,128GB,"['Xám', 'Tím']","['Tím', 'Xám']","['Xám', 'Tím']",2
+58,['666baeb89793e149fe739497'],6892ce13a79a1867093a04f8,samsung galaxy a23,samsung galaxy a23,128GB,[],"['Đen', 'Xanh']",[],0
+59,['666baeb59793e149fe7393cc'],6892ce01a79a1867093a0432,realme c60,realme c60,64GB,"['Xanh', 'Đen']","['Xanh ngọc', 'Đen']",['Đen'],1
+60,['666baeb69793e149fe73942a'],6892cd74a79a1867093a0298,oppo a58,oppo a58,128GB,"['Xanh', 'Đen']","['Đen', 'Xanh']","['Xanh', 'Đen']",2
+61,['666baeb89793e149fe739493'],6892ce05a79a1867093a0457,xiaomi redmi 10c,xiaomi redmi 10c,128GB,[],"['Xanh dương', 'Xám']",[],0
+62,"['666baeb49793e149fe7393bd', '666baeb49793e149fe7393be']",6892cd7aa79a1867093a02a8,tecno camon 30,tecno camon 30,256GB,"['Đen Trời Đêm', 'Trắng núi tuyết', 'Nâu sa mạc']","['Nâu', 'Trắng', 'Đen']",[],0
+63,"['666baeb49793e149fe7393bd', '666baeb49793e149fe7393be']",6892cd7aa79a1867093a02a8,tecno camon 30,tecno camon 30,256GB,"['Đen Trời Đêm', 'Trắng núi tuyết', 'Nâu sa mạc']","['Nâu', 'Trắng', 'Đen']",[],0
+64,['666baeb99793e149fe7394e4'],6892ce0aa79a1867093a048a,samsung galaxy a21s,samsung galaxy a21s,32GB,[],"['Đen', 'Xanh']",[],0
+65,"['666baeb79793e149fe73944c', '666baeb79793e149fe739450']",6892cdc6a79a1867093a02f2,realme c55,realme c55,256GB,"['Vàng Nắng Mai', 'Đen Trời Đêm']","['Đen', 'Vàng']",[],0
+66,['666baeb89793e149fe7394b0'],6892cdd5a79a1867093a0301,oppo a54,oppo a54,128GB,[],"['Xanh dương', 'Đen']",[],0
+67,"['666baeb89793e149fe739477', '666baeb89793e149fe739478', '666baeb89793e149fe739476']",6892cdfca79a1867093a03d2,iphone 14 +,iphone 14 +,256GB,"['Blue', 'Red', 'Purple', 'Starlight', 'Midnight']","['Xanh dương', 'Vàng', 'Đỏ', 'Tím', 'Đen', 'Trắng']",[],0
+68,"['666baeb89793e149fe739477', '666baeb89793e149fe739478', '666baeb89793e149fe739476']",6892cdfca79a1867093a03d2,iphone 14 +,iphone 14 +,128GB,"['Blue', 'Starlight', 'Midnight', 'Red', 'Yellow', 'Purple']","['Xanh dương', 'Vàng', 'Đỏ', 'Tím', 'Đen', 'Trắng']",[],0
+69,"['666baeb89793e149fe739477', '666baeb89793e149fe739478', '666baeb89793e149fe739476']",6892cdfca79a1867093a03d2,iphone 14 +,iphone 14 +,512GB,"['Blue', 'Yellow', 'Purple', 'Starlight', 'Midnight']","['Xanh dương', 'Vàng', 'Đỏ', 'Tím', 'Đen', 'Trắng']",[],0
+70,"['666baeb69793e149fe73940a', '666baeb69793e149fe739409', '666baeb69793e149fe739413']",6892cd95a79a1867093a02c6,iphone 15,iphone 15,256GB,"['Xanh Dương', 'Vàng', 'Đen', 'Xanh Lá', 'Hồng']","['Hồng', 'Xanh dương', 'Đen', 'Vàng', 'Xanh lá']","['Hồng', 'Vàng', 'Đen']",3
+71,"['666baeb69793e149fe73940a', '666baeb69793e149fe739409', '666baeb69793e149fe739413']",6892cd95a79a1867093a02c6,iphone 15,iphone 15,512GB,"['Xanh Lá', 'Vàng', 'Đen', 'Hồng', 'Xanh Dương']","['Hồng', 'Xanh dương', 'Đen', 'Vàng', 'Xanh lá']","['Hồng', 'Vàng', 'Đen']",3
+72,"['666baeb69793e149fe73940a', '666baeb69793e149fe739409', '666baeb69793e149fe739413']",6892cd95a79a1867093a02c6,iphone 15,iphone 15,128GB,"['Xanh Lá', 'Xanh Dương', 'Đen', 'Hồng', 'Vàng']","['Hồng', 'Xanh dương', 'Đen', 'Vàng', 'Xanh lá']","['Hồng', 'Vàng', 'Đen']",3
+73,['666baeb89793e149fe7394b8'],6892ce17a79a1867093a0503,xiaomi mi 11 5g,xiaomi mi 11 5g,256GB,[],"['Xanh', 'Xám']",[],0
+74,['666baeb89793e149fe739483'],6892ce0ea79a1867093a04b8,vivo y02s,vivo y02s,32GB,"['Đen Kim Sa', 'Xanh ánh kim']","['Xanh', 'Đen']",[],0
+75,['666baeb59793e149fe7393f9'],6892cd65a79a1867093a0275,samsung galaxy a15,samsung galaxy a15,128GB,"['Xanh', 'Vàng', 'Đen']","['Vàng', 'Xanh', 'Đen']","['Xanh', 'Vàng', 'Đen']",3
+76,['666baeb59793e149fe7393fe'],6892cd7fa79a1867093a02ac,oppo a18,oppo a18,128GB,"['Xanh', 'Đen']","['Đen', 'Xanh']","['Xanh', 'Đen']",2
+77,"['666baeb89793e149fe7394b9', '666baeb99793e149fe7394c4']",6892cdf8a79a1867093a03c6,xiaomi mi 10t pro 5g,xiaomi mi 10t pro 5g,256GB,[],"['Đen', 'Bạc']",[],0
+78,['666baeb89793e149fe7394b5'],6892ce1ba79a1867093a0533,samsung galaxy a10s,samsung galaxy a10s,32GB,[],"['Đen', 'Xanh']",[],0
+79,['666baeb99793e149fe7394e5'],6892cdf4a79a1867093a038b,samsung galaxy a11,samsung galaxy a11,32GB,[],"['Xanh', 'Trắng', 'Đen']",[],0
+80,['666baeb79793e149fe73945f'],6892cdc6a79a1867093a02f4,samsung galaxy a14 5g,samsung galaxy a14 5g,128GB,[],"['Đỏ', 'Trắng', 'Đen']",[],0
+81,"['666baeb89793e149fe73948f', '666baeb89793e149fe739489']",6892ce05a79a1867093a0452,realme c35,realme c35,64GB,"['Đen', 'Xanh']","['Xanh', 'Đen']","['Xanh', 'Đen']",2
+82,"['666baeb59793e149fe7393d8', '666baeb59793e149fe7393f6', '666baeb69793e149fe739426']",6892cdc0a79a1867093a02f0,realme c51,realme c51,128GB,"['Xanh', 'Đen']","['Đen', 'Xanh']","['Xanh', 'Đen']",2
+83,['666baeb89793e149fe739479'],6892cdb6a79a1867093a02e2,iphone 14,iphone 14,128GB,"['Midnight', 'Blue', 'Purple', 'Red', 'Yellow', 'Starlight']","['Xanh dương', 'Đen', 'Trắng', 'Đỏ', 'Vàng', 'Tím']",[],0
+84,['666baeb79793e149fe73945d'],6892ce17a79a1867093a04fd,oppo reno8 t 5g,oppo reno8 t 5g,128GB,"['Đen', 'Vàng']","['Đen', 'Vàng']","['Vàng', 'Đen']",2
+85,['666baeb79793e149fe739463'],6892cdf0a79a1867093a033e,oppo a17k,oppo a17k,64GB,"['Vàng', 'Xanh']","['Vàng', 'Xanh']","['Xanh', 'Vàng']",2
+86,['666baeb69793e149fe739422'],6892ce01a79a1867093a041e,xiaomi 14 ultra,xiaomi 14 ultra,512GB,"['Đen', 'Trắng']","['Đen', 'Trắng']","['Đen', 'Trắng']",2
+87,['666baeb79793e149fe739460'],6892cdc0a79a1867093a02ee,vivo y02,vivo y02,32GB,[],"['Xanh', 'Đen']",[],0
+88,['666baeb89793e149fe7394ae'],6892cdcba79a1867093a02fb,samsung galaxy s20 fe,samsung galaxy s20 fe,256GB,[],['Tím'],[],0
+89,"['666baeb79793e149fe739468', '666baeb79793e149fe739469']",6892ce0aa79a1867093a0495,realme c33,realme c33,32GB,"['Xanh biển', 'Đen Tuyền']",['Đen'],[],0
+90,['666baeb89793e149fe7394a7'],6892cddba79a1867093a030a,iphone 13 mini,iphone 13 mini,256GB,[],"['Xanh rêu', 'Đen', 'Hồng', 'Đỏ', 'Xanh', 'Trắng']",[],0
+91,['666baeb89793e149fe73949d'],6892ce0aa79a1867093a0487,oppo reno7 z 5g,oppo reno7 z 5g,128GB,[],"['Đen', 'Bạc']",[],0
+92,"['666baeb79793e149fe73945b', '666baeb89793e149fe7394a5']",6892cdeba79a1867093a032d,oppo a16k,oppo a16k,32GB,[],[],[],0
+93,['666baeb69793e149fe739421'],6892cda0a79a1867093a02cd,xiaomi 14,xiaomi 14,256GB,"['Đen', 'Trắng', 'Xanh Lá']","['Đen', 'Trắng', 'Xanh lá']","['Đen', 'Trắng']",2
+94,['666baeb99793e149fe7394de'],6892cdf8a79a1867093a03aa,samsung galaxy s20,samsung galaxy s20,128GB,[],"['Cam', 'Đen']",[],0
+95,['666baeb99793e149fe7394c7'],6892cdf8a79a1867093a03bb,iphone 12 pro max,iphone 12 pro max,256GB,[],"['Xanh', 'Bạc']",[],0
+96,['666baeb89793e149fe7394a8'],6892cde0a79a1867093a030d,iphone 13,iphone 13,128GB,"['Green', 'Red', 'Midnight', 'Pink', 'Blue', 'Starlight']","['Đen', 'Trắng', 'Đỏ', 'Xanh', 'Hồng', 'Xanh lá']",[],0
+97,['666baeb99793e149fe7394e7'],6892ce0aa79a1867093a0493,realme c3,realme c3,32GB,[],"['Đỏ', 'Xanh']",[],0
+98,"['666baeb79793e149fe739446', '666baeb79793e149fe739470']",6892cdc0a79a1867093a02f1,realme c30s,realme c30s,64GB,"['Xanh', 'Đen']",['Đen'],['Đen'],1
+99,"['666baeb49793e149fe7393bc', '666baeb69793e149fe739415']",6892cd9ba79a1867093a02ca,samsung galaxy a05s,samsung galaxy a05s,128GB,"['Đen', 'Xanh', 'Bạc']","['Đen', 'Xanh', 'Bạc']","['Xanh', 'Bạc', 'Đen']",3
+100,"['666baeb49793e149fe7393bc', '666baeb69793e149fe739415']",6892cd9ba79a1867093a02ca,samsung galaxy a05s,samsung galaxy a05s,128GB,"['Xanh', 'Đen', 'Bạc']","['Đen', 'Xanh', 'Bạc']","['Xanh', 'Bạc', 'Đen']",3
+101,['666baeb99793e149fe7394d8'],6892ce0aa79a1867093a0482,oppo a12,oppo a12,32GB,[],"['Xanh', 'Bạc']",[],0
+102,['666baeb99793e149fe7394d3'],6892ce17a79a1867093a0529,oppo reno4 pro,oppo reno4 pro,256GB,[],"['Trắng', 'Đen']",[],0
+103,['666baeb69793e149fe739406'],6892ce13a79a1867093a04ef,xiaomi 13t,xiaomi 13t,256GB,"['Xanh Dương', 'Xanh Lá', 'Đen']",['Xanh lá'],[],0
+104,"['666baeb99793e149fe7394c6', '666baeb99793e149fe7394c5']",6892cde6a79a1867093a0313,iphone 12,iphone 12,128GB,"['Black', 'Blue', 'White', 'Red', 'Green', 'Purple']","['Đỏ', 'Xanh lá', 'Đen', 'Trắng', 'Xanh', 'Tím']",[],0
+105,"['666baeb99793e149fe7394c6', '666baeb99793e149fe7394c5']",6892cde6a79a1867093a0313,iphone 12,iphone 12,64GB,"['Green', 'Purple', 'Black', 'Blue', 'White', 'Red']","['Đỏ', 'Xanh lá', 'Đen', 'Trắng', 'Xanh', 'Tím']",[],0
+106,['666baeb99793e149fe7394df'],6892cdf4a79a1867093a038d,samsung galaxy note 10 lite,samsung galaxy note 10 lite,128GB,[],"['Đen', 'Bạc']",[],0
+107,['666baeb69793e149fe739416'],6892cd9ba79a1867093a02c9,samsung galaxy a05,samsung galaxy a05,128GB,"['Đen', 'Xanh', 'Bạc']","['Đen', 'Bạc', 'Xanh']","['Xanh', 'Bạc', 'Đen']",3
+108,['666baeb59793e149fe7393d3'],6892ce13a79a1867093a04ed,oppo reno11 f 5g,oppo reno11 f 5g,256GB,"['Xanh Đen', 'Xanh']","['Xanh Đen', 'Xanh']","['Xanh', 'Xanh Đen']",2
+109,['666baeb99793e149fe7394d4'],6892ce1ba79a1867093a054b,oppo reno4,oppo reno4,128GB,[],['Tím'],[],0
+110,['666baeb99793e149fe7394ec'],6892cdeba79a1867093a0323,iphone 11,iphone 11,128GB,"['White', 'Black', 'Red', 'Green', 'Purple']","['Trắng', 'Đen']",[],0
+111,['666baeb89793e149fe739495'],6892ce05a79a1867093a0455,samsung galaxy a73 5g,samsung galaxy a73 5g,128GB,[],"['Xám', 'Trắng', 'Xanh']",[],0
+112,['666baeb69793e149fe739414'],6892cd9ba79a1867093a02c8,samsung galaxy m34 5g,samsung galaxy m34 5g,128GB,"['Xanh Nhạt', 'Xanh đậm']","['Xanh Nhạt', 'Xanh Đậm']",['Xanh Nhạt'],1
+113,['666baeb59793e149fe7393d1'],6892cd90a79a1867093a02c0,honor x7b,honor x7b,256GB,"['Bạc', 'Đen']","['Xanh', 'Bạc', 'Đen']","['Bạc', 'Đen']",2
+114,['666baeb79793e149fe73943c'],6892cdc0a79a1867093a02ef,honor x9a 5g,honor x9a 5g,256GB,"['Đen', 'Xanh Lá', 'Bạc']","['Xanh', 'Bạc', 'Đen']","['Bạc', 'Đen']",2
+115,['666baeb89793e149fe7394b6'],6892ce17a79a1867093a0512,realme c20,realme c20,32GB,[],"['Đen', 'Xanh']",[],0
+116,['666baeb89793e149fe7394b1'],6892cde0a79a1867093a030c,realme c25,realme c25,128GB,[],"['Đen', 'Xanh']",[],0
+117,['666baeb69793e149fe739417'],6892cda6a79a1867093a02d2,honor x6a,honor x6a,128GB,"['Bạc Ánh Sao', 'Đen Huyền Bí']","['Đen', 'Bạc']",[],0
+118,['666baeb79793e149fe73946d'],6892ce13a79a1867093a04fa,xiaomi 12t,xiaomi 12t,128GB,[],"['Đen', 'Bạc']",[],0
+119,['666baeb79793e149fe739454'],6892cdb6a79a1867093a02e4,xiaomi 13,xiaomi 13,256GB,[],['Đen'],[],0
+120,['666baeb79793e149fe73946e'],6892ce05a79a1867093a0442,vivo v25 5g,vivo v25 5g,128GB,"['Vàng', 'Đen']","['Đen', 'Vàng']","['Vàng', 'Đen']",2
+121,['666baeb99793e149fe7394e1'],6892cdf4a79a1867093a038c,samsung galaxy a71,samsung galaxy a71,128GB,[],"['Xanh', 'Bạc', 'Đen']",[],0
+122,['666baeb99793e149fe7394c8'],6892ce0aa79a1867093a046a,realme 7i,realme 7i,128GB,[],['Nâu'],[],0
+123,['666baeb89793e149fe7394bc'],6892ce0aa79a1867093a0486,realme c15,realme c15,64GB,[],['Bạc'],[],0
+124,['666baeb59793e149fe739401'],6892cd95a79a1867093a02c5,honor x5 +,honor x5 +,64GB,"['Đen', 'Xanh']","['Đen', 'Xanh']","['Xanh', 'Đen']",2
+125,"['666baeb89793e149fe739485', '666baeb89793e149fe739486']",6892cdf0a79a1867093a0345,vivo t1x,vivo t1x,64GB,"['Xanh', 'Đen']","['Xanh', 'Đen']","['Xanh', 'Đen']",2
