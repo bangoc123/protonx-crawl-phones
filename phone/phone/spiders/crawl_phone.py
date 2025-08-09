@@ -1,9 +1,6 @@
 import traceback
 import pymongo
-import requests
-import time
 import os
-import schedule
 from time import gmtime, strftime
 import scrapy
 from bs4 import BeautifulSoup, Tag
@@ -17,12 +14,14 @@ import brotli
 import logging
 import json
 import re
-from typing import List, Dict, Any
 import xmltodict
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from urllib.parse import urljoin
+from concurrent.futures import ThreadPoolExecutor
 
 import sys
+
+import subprocess
+import json
+
 
 # Bắt buộc dùng demjson3 để parse JS-style object literals
 try:
@@ -43,7 +42,7 @@ try:
 except Exception as e:
     print("LỖI khi ping:", e)
 
-db = client["thegioididceong"]
+db = client["thegioididong"]
 # db = client["cellphones"]
 # db = client["fptshop"]
 
@@ -60,14 +59,22 @@ def cleanText(p_texts):
             txt += "{}\n".format(clean_p_t)
     return txt
 
+def contains_brand(url: str) -> bool:
+    brands = [
+        "iphone", "samsung", "xiaomi", "oppo", "realme", "nothing", "infinix", "vivo",
+        "tecno", "sony", "itel", "nubia", "masstel", "nokia", "oneplus", "tcl", "inoi", "benco", "asus"
+    ]
+    url_lower = url.lower()
+    return any(brand in url_lower for brand in brands)
+
 REMOVE_ATTRIBUTES = ['style', 'data-src', 'src', 'href', 'aria-describedby', 'data-wpel-link', 'rel', 'target', 'id', 'class', 'aria-level', 'data-mce-style', 'data-mce-href']
 
 class JobSpider(scrapy.Spider):
     name = 'phone'
     start_urls = [
-        'https://www.thegioididong.com/newsitemap/sitemap-cate',
+        # 'https://www.thegioididong.com/newsitemap/sitemap-cate',
         'https://www.thegioididong.com/newsitemap/sitemap-product', 
-        'https://www.thegioididong.com/newsitemap/sitemap-news'
+        # 'https://www.thegioididong.com/newsitemap/sitemap-news'
         # 'https://cellphones.com.vn/sitemap/sitemap_index.xml'
         # 'https://fptshop.com.vn/sitemap.xml'
     ]
@@ -233,14 +240,26 @@ class JobSpider(scrapy.Spider):
                         if 'http' in link and 'dtdd' in link and 'sac' not in link and 'phu-kien' not in link: # thegioididong (dtdd) # cellphones: if dien-thoai is not link, To should be check keywords such as iPhone, samsung, xiaomi, oppo, realme, nothing, infinix, vivo, tecno, sony, itel, nubia, masstel, nokia, oneplus, tcl, inoi, benco, asus
                             yield Request(
                                 url=link,
-                                callback=self._parse_product_info_fptshop, # thegioididong (self.parse_product_info)
+                                callback=self.parse_product_info, # thegioididong (self.parse_product_info)
                                 # dont_filter=True,
-                                # headers={'Referer': 'https://cellphones.com.vn/'}, # https://www.thegioididong.com/
+                                # headers={'Referer': 'https://cellphones.com.vn/'},
                                 # headers={'Referer': 'https://fptshop.com.vn/'},
                                 headers={'Referer': 'https://www.thegioididong.com/'},
                                 priority=0,  # Priority thấp hơn sitemap
                                 meta={'batch_id': i // batch_size}  # Để tracking
                             )
+                        # else:
+                        #     if 'http' in link and 'dien-thoai' not in link and 'sac' not in link and 'phu-kien' not in link and contains_brand(link):
+                        #         yield Request(
+                        #         url=link,
+                        #         callback=self.parse_product_info, # thegioididong (self.parse_product_info)
+                        #         # dont_filter=True,
+                        #         headers={'Referer': 'https://cellphones.com.vn/'}, # https://www.thegioididong.com/
+                        #         # headers={'Referer': 'https://fptshop.com.vn/'},
+                        #         # headers={'Referer': 'https://www.thegioididong.com/'},
+                        #         priority=0,  # Priority thấp hơn sitemap
+                        #         meta={'batch_id': i // batch_size}  # Để tracking
+                        #     )
             else:
                 print("⚠️ Unknown sitemap format:", list(json_data.keys()))
                 
@@ -269,21 +288,21 @@ class JobSpider(scrapy.Spider):
                 # Submit các task để chạy song song
                 future_basic_info = executor.submit(self.extract_basic_info, detail_container, url)
                 future_options = executor.submit(self.extract_options, detail_container, url)
-                future_saving_box = executor.submit(self.extract_saving_box, soup)
+                future_price_and_promotions = executor.submit(self.extract_price_and_promotions, url)
                 future_specifications = executor.submit(self.extract_specifications, soup, url)
                 future_policies = executor.submit(self.extract_policies, soup, url)
 
                 # Collect results
                 basic_info = future_basic_info.result()
                 options_info = future_options.result()
-                saving_info = future_saving_box.result()
+                price_and_promotions = future_price_and_promotions.result()
                 specifications = future_specifications.result()
                 policies = future_policies.result()
 
                 # Merge all data
                 product_data.update(basic_info)
                 product_data.update(options_info)
-                product_data.update(saving_info)
+                product_data["price_and_promotions"] = price_and_promotions
                 product_data['specifications'] = specifications
                 product_data['policies'] = policies
 
@@ -377,47 +396,35 @@ class JobSpider(scrapy.Spider):
             
         return product_data
 
-    def extract_product_info(self, soup):
-        """
-        Trích xuất thông tin sản phẩm từ cấu trúc HTML mới, bao gồm:
-        giá hiện tại, giá gốc, phần trăm giảm giá, địa điểm và khuyến mãi.
-        """
-        product_data = {}
+    def extract_price_and_promotions(self, url):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        crawl_script_path = os.path.join(script_dir, '../../../client_crawl/thegioididong_crawl.js')
 
-        # 1. Lấy thông tin về giá, giảm giá và trả góp
-        price_box = soup.select_one("div.price-one")
-        if price_box:
-            promo_price_tag = price_box.select_one("p.box-price-present")
-            original_price_tag = price_box.select_one("p.box-price-old")
-            discount_tag = price_box.select_one("p.box-price-percent")
-            installment_tag = price_box.select_one("span.label--black")
+        try:
+            proc = subprocess.run(
+                ["node", crawl_script_path, url],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
 
-            product_data['promo_price'] = promo_price_tag.get_text(strip=True) if promo_price_tag else ""
-            product_data['original_price'] = original_price_tag.get_text(strip=True) if original_price_tag else ""
-            product_data['discount'] = discount_tag.get_text(strip=True) if discount_tag else ""
-            product_data['installment_info'] = installment_tag.get_text(strip=True) if installment_tag else ""
+            output_str = proc.stdout.strip()
+            specs = []
+            # Thử load thẳng
+            try:
+                specs = json.loads(output_str)
+            except json.JSONDecodeError:
+                # Nếu stdout có thêm log khác, ta vẫn có thể extract mảng JSON
+                import re
+                m = re.search(r'(\[.*\])', output_str, re.S)
+                if not m:
+                    raise
+                specs = json.loads(m.group(1))
 
-        # 2. Lấy thông tin về địa điểm
-        location_box = soup.select_one("div#location-detail")
-        if location_box:
-            location_tag = location_box.select_one("a")
-            product_data['location'] = location_tag.get_text(strip=True) if location_tag else ""
-        
-        # 3. Lấy thông tin khuyến mãi
-        promo_box = soup.select_one("div.block__promo")
-        if promo_box:
-            promo_title_tag = promo_box.select_one("p.pr-txtb")
-            promo_list_items = promo_box.select("div.divb-right p")
-            
-            product_data['promo_title'] = promo_title_tag.get_text(strip=True) if promo_title_tag else ""
-            product_data['promo_list'] = [item.get_text(strip=True) for item in promo_list_items]
-
-        # 4. Lấy điểm tích lũy
-        loyalty_tag = soup.select_one("p.loyalty__main__point")
-        if loyalty_tag:
-            product_data['loyalty_points'] = loyalty_tag.get_text(strip=True)
-            
-        return product_data
+            return specs
+        except subprocess.CalledProcessError as e:
+            print("Node.js error:", e.stderr)
 
     def extract_specifications(self, soup, url):
         """Trích xuất thông số kỹ thuật"""
@@ -495,22 +502,6 @@ class JobSpider(scrapy.Spider):
             print(f"⚠️ Lỗi khi trích xuất thông tin chính sách: {e}")
             return {}
     
-    def _save_soup_to_file(self, soup: BeautifulSoup, filename: str = "output.html"):
-        """
-        Lưu nội dung của đối tượng BeautifulSoup vào một file.
-
-        Args:
-            soup (BeautifulSoup): Đối tượng BeautifulSoup chứa nội dung HTML đã được phân tích.
-            filename (str): Tên file để lưu dữ liệu. Mặc định là 'output.html'.
-        """
-        try:
-            # Sử dụng .prettify() để định dạng HTML dễ đọc
-            with open(filename, "w", encoding="utf-8") as file:
-                file.write(str(soup.prettify()))
-            print(f"Đã lưu nội dung vào file '{filename}' thành công.")
-        except Exception as e:
-            print(f"Lỗi khi lưu file: {e}")
-    
     def _parse_product_info_cellphones(self, response):
         """Phương thức này sẽ được gọi để trích xuất thông tin sản phẩm từ trang chi tiết"""
         try:
@@ -566,7 +557,7 @@ class JobSpider(scrapy.Spider):
                 future_promotions = executor.submit(self._extract_promotions_cellphones, detail_container_center, url)
                 future_payment_promotions = executor.submit(self._extract_payment_promotions_cellphones, detail_container_center, url)
                 future_commitments = executor.submit(self._extract_product_commitments_cellphones, detail_container_left, url)
-                future_specifications = executor.submit(self._extract_product_specifications_cellphones, detail_container_left, url)
+                future_specifications = executor.submit(self._extract_product_specifications_cellphones, url)
 
                 # Collect results
                 basic_info = future_basic_info.result()
@@ -881,59 +872,56 @@ class JobSpider(scrapy.Spider):
             print(traceback.format_exc())
             return {}
     
-    def _extract_product_specifications_cellphones(self, detail_container_left, url):
-        """
-        Trích xuất các thông số kỹ thuật của sản phẩm từ Cellphones.
+    def _extract_product_specifications_cellphones(self, url):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        crawl_script_path = os.path.join(script_dir, '../../../client_crawl/crawl.js')
 
-        Args:
-            detail_container_left (bs4.Tag): Thẻ BeautifulSoup chứa toàn bộ phần thông số kỹ thuật.
-            url (str): URL của trang sản phẩm.
-
-        Returns:
-            dict: Một dictionary chứa tiêu đề và các cặp key-value của thông số kỹ thuật.
-                Trả về dictionary rỗng nếu không tìm thấy hoặc có lỗi.
-        """
+        # Khởi tạo giá trị mặc định cho specifications
         specifications = {}
 
         try:
-            # Lấy tiêu đề chính của phần thông số kỹ thuật
-            title_tag = detail_container_left.select_one("#thong-so-ky-thuat .box-title h2")
-            if title_tag:
-                specifications['title'] = title_tag.get_text(strip=True)
-            else:
-                specifications['title'] = "Thông số kỹ thuật"
+            future_specifications = subprocess.run(
+                ["node", crawl_script_path, url],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True
+            )
 
-            # Trích xuất các thông số kỹ thuật chi tiết
-            specs_list = []
-            specs_table = detail_container_left.select_one("table.technical-content tbody")
+            output_str = future_specifications.stdout
             
-            if specs_table:
-                # Lấy tất cả các dòng thông số kỹ thuật
-                spec_rows = specs_table.select("tr.technical-content-item")
+            # In toàn bộ output để dễ dàng debug nếu có lỗi
+            print("--- Output from Node.js script ---")
+            print(output_str)
+
+            json_start = output_str.find('{')
+            json_end = output_str.rfind('}') + 1
+
+            if json_start != -1 and json_end != -1:
+                json_str = output_str[json_start:json_end]
                 
-                for row in spec_rows:
-                    # Lấy key (tên thông số) từ cột đầu tiên
-                    key_tag = row.select_one("td:first-child")
-                    key = key_tag.get_text(strip=True) if key_tag else ""
-                    
-                    # Lấy value (giá trị thông số) từ cột thứ hai
-                    value_tag = row.select_one("td:last-child")
-                    if value_tag:
-                        # Lấy toàn bộ text, đảm bảo các thẻ con như <br> và <a> được xử lý đúng
-                        value_text = value_tag.get_text(strip=True, separator="\n")
-                        specs_list.append({
-                            "key": key,
-                            "value": value_text
-                        })
+                try:
+                    # Chuyển đổi chuỗi JSON thành dictionary
+                    specifications = json.loads(json_str)
+                except json.JSONDecodeError as e:
+                    print(f"Lỗi khi parse JSON: {e}")
+                    print(f"Chuỗi JSON không hợp lệ: {json_str}")
+            else:
+                print("\nKhông tìm thấy chuỗi JSON hợp lệ trong output của script Node.js.")
 
-            specifications['items'] = specs_list
-            
             return specifications
 
+        except subprocess.CalledProcessError as e:
+            print("--- LỖI XẢY RA TRONG SCRIPT NODE.JS ---")
+            print(f"Lệnh đã chạy: {' '.join(e.cmd)}")
+            print(f"Mã lỗi trả về: {e.returncode}")
+            print("\n--- STDERR ---")
+            print(e.stderr)
+            return {"error": e.stderr} # Trả về dictionary chứa thông tin lỗi
+        
         except Exception as e:
-            print(f"⚠️ Lỗi khi trích xuất thông số kỹ thuật từ {url}: {e}")
-            print(traceback.format_exc())
-            return {}
+            print(f"Lỗi không xác định khi gọi Node.js: {e}")
+            return {"error": str(e)} # Trả về dictionary chứa thông tin lỗi
     
     def _parse_product_info_fptshop(self, response):
         """Phương thức này sẽ được gọi để trích xuất thông tin sản phẩm từ trang chi tiết FPT Shop"""

@@ -1,26 +1,24 @@
 const { chromium } = require('playwright');
 
 (async () => {
-    const browser = await chromium.launch({ headless: true }); // Set to false for debugging
-    const page = await browser.newPage();
-    
-    try {
-        console.log("Navigating to page...");
-        await page.goto("https://cellphones.com.vn/dien-thoai-xiaomi-15.html", { 
-            waitUntil: "domcontentloaded" 
-        });
+    let browser;
+    const result = {};
 
-        // Wait a bit for page to fully load
+    try {
+        const url = process.argv[2];
+        if (!url) {
+            console.error('Usage: node crawl.js <URL>');
+            process.exit(1);
+        }
+
+        browser = await chromium.launch({ headless: true });
+        const page = await browser.newPage();
+        await page.goto(url, { waitUntil: "domcontentloaded" });
         await page.waitForTimeout(3000);
 
-        // Check if the button exists
-        console.log("Looking for specs button...");
+        // Tìm và click nút specs
         const specsButton = page.locator(".button__show-modal-technical");
-        const buttonCount = await specsButton.count();
-        console.log(`Found ${buttonCount} specs button(s)`);
-
-        if (buttonCount === 0) {
-            // Try alternative selectors
+        if (await specsButton.count() === 0) {
             const altSelectors = [
                 "button[data-modal='technical']",
                 ".btn-technical",
@@ -28,84 +26,60 @@ const { chromium } = require('playwright');
                 "button:has-text('Thông số kỹ thuật')",
                 "button:has-text('Chi tiết')"
             ];
-
-            for (const selector of altSelectors) {
-                const count = await page.locator(selector).count();
-                if (count > 0) {
-                    console.log(`Found button with selector: ${selector}`);
-                    await page.click(selector);
+            for (const sel of altSelectors) {
+                if (await page.locator(sel).count() > 0) {
+                    await page.click(sel);
                     break;
                 }
             }
         } else {
-            console.log("Clicking specs button...");
             await specsButton.click();
         }
 
-        // Wait and check for modal
-        console.log("Waiting for modal to appear...");
-        
+        // Chờ modal specs xuất hiện
+        let modalSelector = ".teleport-modal_content .technical-content-section";
         try {
-            await page.waitForSelector(".teleport-modal_content .technical-content-section", {
-                timeout: 10000
-            });
-            console.log("Modal appeared!");
-        } catch (error) {
-            console.log("Modal didn't appear, trying alternative selectors...");
-            
-            // Try alternative modal selectors
-            const modalSelectors = [
+            await page.waitForSelector(modalSelector, { timeout: 10000 });
+        } catch {
+            const fallbacks = [
                 ".modal .technical-content-section",
                 ".popup .technical-content-section",
                 ".overlay .technical-content-section",
                 ".specifications-modal",
                 ".tech-specs"
             ];
-
-            let modalFound = false;
-            for (const selector of modalSelectors) {
+            for (const sel of fallbacks) {
                 try {
-                    await page.waitForSelector(selector, { timeout: 2000 });
-                    console.log(`Found modal with selector: ${selector}`);
-                    modalFound = true;
+                    await page.waitForSelector(sel, { timeout: 2000 });
+                    modalSelector = sel;
                     break;
-                } catch (e) {
-                    // Continue to next selector
-                }
-            }
-
-            if (!modalFound) {
-                console.log("No modal found. Taking screenshot for debugging...");
-                await page.screenshot({ path: 'debug-screenshot.png', fullPage: true });
-                console.log("Screenshot saved as debug-screenshot.png");
-                return;
+                } catch { }
             }
         }
 
-        const sections = await page.locator(".teleport-modal_content .technical-content-section").all();
-        console.log(`Found ${sections.length} sections`);
-
+        // Đọc specs
+        const sections = await page.locator(modalSelector).all();
         for (const section of sections) {
-            const title = await section.locator("p.title").innerText();
-            console.log(`\n=== ${title.trim()} ===`);
-
+            const title = (await section.locator("p.title").innerText()).trim();
             const rows = await section.locator("tr.technical-content-item").all();
-            
+            const specs = {};
             for (const row of rows) {
                 const cells = await row.locator("td").all();
                 if (cells.length >= 2) {
-                    const key = await cells[0].innerText();
-                    const value = await cells[1].innerText();
-                    console.log(`${key.trim()}: ${value.trim()}`);
+                    const key = (await cells[0].innerText()).trim();
+                    const val = (await cells[1].innerText()).trim();
+                    specs[key] = val;
                 }
             }
+            result[title] = specs;
         }
 
-    } catch (error) {
-        console.error('Error:', error.message);
-        await page.screenshot({ path: 'error-screenshot.png', fullPage: true });
-        console.log("Error screenshot saved");
+        console.log(JSON.stringify(result, null, 2));  // xuất ra stdout
+
+    } catch (err) {
+        console.error("Error in script:", err);
+        process.exitCode = 1;
     } finally {
-        await browser.close();
+        if (browser) await browser.close();
     }
 })();
